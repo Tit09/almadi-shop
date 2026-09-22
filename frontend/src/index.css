@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white text-ink-950 font-sans antialiased;
+  }
+  ::selection {
+    @apply bg-gold-200 text-ink-950;
+  }
+  /* Barre de défilement discrète, cohérente avec la charte */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { @apply bg-ink-200 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-ink-300; }
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold-500 ring-offset-2 rounded-sm;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply mx-auto w-full max-w-[1320px] px-4 sm:px-6;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
+           transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 select-none;
+  }
+  .btn-primary {
+    @apply btn bg-ink-950 text-white hover:bg-ink-900 active:scale-[.98] shadow-card;
+  }
+  .btn-gold {
+    @apply btn bg-gold-500 text-ink-950 hover:bg-gold-400 active:scale-[.98] shadow-gold;
+  }
+  .btn-outline {
+    @apply btn border border-ink-200 bg-white text-ink-950 hover:border-ink-950 hover:bg-ink-50;
+  }
+  .btn-ghost {
+    @apply btn text-ink-700 hover:bg-ink-50;
+  }
+  .btn-sm { @apply px-3.5 py-2 text-xs rounded-lg; }
+
+  .input {
+    @apply w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-950
+           placeholder:text-ink-400 transition focus:border-gold-500 focus:ring-2 focus:ring-gold-200;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-500;
+  }
+  .card {
+    @apply rounded-2xl border border-ink-100 bg-white shadow-card;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+  .section-title {
+    @apply font-display text-2xl font-semibold tracking-tight text-ink-950 sm:text-3xl;
+  }
+
+  /* Squelette de chargement */
+  .skeleton {
+    @apply relative overflow-hidden bg-ink-100;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+@media print {
+  .no-print { display: none !important; }
+}

@@ -1,0 +1,33 @@
+LOGOS DES MOYENS DE PAIEMENT
+============================
+
+Visa, Mastercard, American Express et Orange sont affichés depuis la
+bibliothèque « simple-icons » installée avec le projet (paquet react-icons).
+Ce sont les tracés officiels des marques : rien n'est redessiné à la main.
+
+WAVE — un fichier à déposer ici
+-------------------------------
+Wave n'est présent dans aucune bibliothèque d'icônes libre. Récupérez le
+logo officiel auprès de Wave, puis enregistrez-le dans ce dossier sous le
+nom exact :
+
+    public/payments/wave.svg
+
+Où le récupérer :
+  1. Page « Brand / Presse » de Wave :        https://www.wave.com
+  2. Espace marchand Wave Business :          https://business.wave.com
+     (rubrique ressources / kit marchand — c'est la source à privilégier,
+      elle fournit aussi les badges « Payez avec Wave »)
+  3. À défaut, demandez le kit de marque à votre chargé de compte Wave
+     lors de l'ouverture du compte marchand.
+
+Un PNG fonctionne également : renommez-le wave.svg n'est PAS suffisant.
+Pour un PNG, modifiez la ligne src du composant :
+    src/components/PaymentLogos.jsx  →  src="/payments/wave.png"
+
+Tant que le fichier est absent, l'interface affiche un libellé texte neutre
+« WAVE » : aucune imitation du logo n'est générée.
+
+Remarque juridique : l'affichage du logo d'un moyen de paiement est autorisé
+pour indiquer que vous l'acceptez, à condition de ne pas le déformer et de
+ne pas laisser croire à un partenariat officiel.
