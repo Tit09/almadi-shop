@@ -1,8 +1,14 @@
 'use strict';
 
-require('dotenv').config();
-
 const path = require('path');
+
+// Le .env est cherché à côté du code, pas dans le dossier d'où l'on lance la
+// commande. Sans ce chemin explicite, « node backend/src/server.js » lancé
+// depuis la racine du projet ne trouvait pas JWT_SECRET et refusait de démarrer.
+// En production (Render, VPS), les variables viennent de l'environnement et ce
+// fichier n'existe pas : dotenv passe alors sans rien faire.
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 const fs = require('fs');
 const express = require('express');
 const helmet = require('helmet');
@@ -48,15 +54,32 @@ const origins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
   .map((o) => o.trim())
   .filter(Boolean);
 
-app.use(
-  cors({
-    origin(origin, cb) {
-      if (!origin || origins.includes(origin) || origins.includes('*')) return cb(null, true);
-      cb(new Error('Origine non autorisée par la politique CORS.'));
-    },
-    credentials: true,
-  })
-);
+// CORS ne s'applique qu'à l'API. Appliqué à tout le serveur, il rejetait aussi
+// les fichiers du site (CSS, JS, images) dès que le navigateur joignait un
+// en-tête « Origin » — d'où des erreurs 500 sur une page pourtant servie par ce
+// même serveur. Le CORS sert à filtrer les appels d'AUTRES domaines.
+const corsMiddleware = cors((req, cb) => {
+  const origin = req.headers.origin;
+
+  // L'origine du serveur lui-même est TOUJOURS autorisée. Sans cette règle, un
+  // simple oubli de CORS_ORIGIN en production casse toute la boutique.
+  const soiMeme = `${req.protocol}://${req.get('host')}`;
+
+  const autorise =
+    !origin ||                    // requête directe : curl, application mobile
+    origin === soiMeme ||         // même domaine
+    origins.includes('*') ||
+    origins.includes(origin);
+
+  cb(
+    autorise ? null : new Error('Origine non autorisée par la politique CORS.'),
+    { origin: autorise, credentials: true }
+  );
+});
+
+app.use('/api', corsMiddleware);
+// Les photos produit doivent rester lisibles quel que soit l'hébergement.
+app.use('/uploads', cors({ origin: true }));
 
 app.use(compression());
 app.use(express.json({ limit: '1mb' }));
@@ -130,6 +153,14 @@ app.use((err, _req, res, _next) => {
 });
 
 if (require.main === module) {
+  // Hébergement gratuit : le disque est effacé à chaque redéploiement. Si la
+  // base est vide, on rétablit le catalogue depuis data-export.json et on
+  // recrée le compte administrateur. Sur un serveur à disque persistant, ces
+  // deux lignes ne font jamais rien.
+  const restore = require('./lib/restore');
+  restore.restaurerSiVide();
+  restore.assurerAdmin();
+
   app.listen(PORT, () => {
     console.log(`\n  Almadi Shop API — http://localhost:${PORT}`);
     console.log(`  Environnement : ${NODE_ENV}`);
